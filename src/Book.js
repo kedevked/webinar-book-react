@@ -1,6 +1,23 @@
 import React from 'react'
 
 class Book extends React.Component {
+  state = {
+    shelf: 'none'
+  }
+
+  componentDidMount() {
+    const { book } = this.props;
+    if(book.shelf) {
+      this.setState({ shelf: book.shelf })
+    }
+  }
+
+  changeBookShelf = (event) => {
+    this.setState({
+      shelf: event.target.value
+    })
+    this.props.onUpdateBook(this.props.book, event.target.value)
+  }
 
   render() {
     const style = {
@@ -9,6 +26,7 @@ class Book extends React.Component {
       backgroundImage: this.props.book.imageLinks ?
         `url(${this.props.book.imageLinks.thumbnail})` : ''
     }
+
     return (<li>
       <div className="book">
         <div className="book-top">

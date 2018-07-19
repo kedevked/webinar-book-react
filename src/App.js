@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {Component} from 'react'
 // import * as BooksAPI from './BooksAPI'
 import './App.css'
 import ListBook from "./ListBook"
@@ -6,11 +6,34 @@ import {Route, Link} from 'react-router-dom'
 import * as BooksAPI from './BooksAPI'
 import Book from "./Book";
 
-class BooksApp extends React.Component {
+class BooksApp extends Component {
   state = {
     books: [],
     query: '',
     showingBooks: []
+  }
+
+  updateShelf = (book, shelf) => {
+    let books;
+    if (this.state.books.findIndex(b => b.id === book.id) > 0) {
+      // change the position of an existing book in the shelf
+      books = this.state.books.map(b => {
+        if (b.id === book.id) {
+          return {...book, shelf}
+        } else {
+          return b
+        }
+      })
+    } else {
+      // add a new book to the shelf
+      books = [...this.state.books, {...book, shelf}]
+    }
+
+    this.setState({books})
+
+    BooksAPI.update(book, shelf).then((data) => {
+      // shelf updated on the server
+    })
   }
 
   // get all the books before loading the component
@@ -65,14 +88,16 @@ class BooksApp extends React.Component {
               <div className="search-books-results">
                 <ol className="books-grid">
                   {this.state.showingBooks.map((book, i) => (
-                    <Book key={i} book={book}/>
+                    <Book key={i} book={book}
+                          onUpdateBook={(book, shelf) => this.updateShelf(book, shelf)}/>
                   ))}
                 </ol>
               </div>
             </div>
           )} />
           <Route exact path="/" render={() => (
-            <ListBook/>
+            <ListBook books={this.state.books}
+                       onUpdateShelf={(book, shelf) => this.updateShelf(book, shelf)}/>
           )}/>
 
       </div>
